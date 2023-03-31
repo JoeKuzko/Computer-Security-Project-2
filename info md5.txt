@@ -1,0 +1,63 @@
+MD5
+
+128 bit digest size for every input
+
+input string + md5 funct = 128 bit digest
+
+step 1:
+make input 64 bits short of any multiple of 512
+
+in padding, '1' is added and '0' follows the rest.
+
+original message + padding bits = 512-64
+
+step 2:
+
+pad the length bits of orginal message to the previous result and the length is expressed in 64 bits
+
+after this, the string is now a multiple of 512
+
+step 3:
+message is now broken down into 512 bit blocks
+4 buffers 32 bits each A,B,C,D - they are words that will store each sub block???
+
+first iteration has fixed hex values 
+ex: 	A= 01 23 45 67
+	B= 89 ab cd ef
+	C= fe dc ba 98
+	D= 76 54 32 10
+each 512 block is broken down into 16 sub blocks of 32 bits each
+each sub block requires 4 rounds of operations using ABCD from before, requires constants???
+
+the constant value us an array of 64 elements with 16 elements being used each round
+sub blocks = m[0]..m[15]
+constant array T[1]...t[64]
+
+A, B, C, D, - BCD are are passed to non linear funciton???
+
+output added to raw value of A
+new output is added to the 32 bit sub block??
+new output is added to constant value
+next need circular shift
+add out put to buffer B
+final ouput is stored in b of output register
+value of previous B is stored in C C is stored in D D is stored in A
+
+the values are moved on as input to next sub block. once all 16 blocks are completed,
+final value is saved and the next 512 block is sent into process. once all 512 block done, it is stored as final digest
+
+non linear process is different every round 
+1: (b AND c) OR ((NOT b) AND (d))
+2: (b AND d) OR (c AND (NOT d))
+3: b XOR c XOR d
+4: c XOR (b OR (NOT d))
+
+MD5 Crypt is a password hashing algorithm that combines the MD5 cryptographic hash function with a salt value and multiple rounds of hashing. The purpose of MD5 Crypt is to securely store user passwords by transforming them into a one-way hash that cannot be easily reversed or decrypted.
+
+The MD5 Crypt algorithm works by first generating a random salt value for each password. This salt value is concatenated with the password, and the resulting string is hashed multiple times using the MD5 hash function. The number of rounds of hashing is determined by a configurable parameter called the "iteration count" or "work factor".
+
+The output of the MD5 Crypt algorithm is a string that contains the salt value, the iteration count, and the final hashed value. This string can be stored in a database or other data store as a secure representation of the original password.
+
+To validate a user's password using MD5 Crypt, the algorithm performs the same process of concatenating the salt value and password, and hashing the resulting string multiple times using the MD5 hash function. The resulting hash value is compared to the stored hash value for the user's password. If the two hash values match, the user's password is considered valid.
+
+MD5 Crypt is designed to be a secure and robust password hashing algorithm that is resistant to dictionary attacks and other common password cracking techniques. By using a random salt value and multiple rounds of hashing, MD5 Crypt makes it much more difficult for attackers to reverse engineer the original password from the stored hash value. However, it is important to note that MD5 Crypt is not completely immune to attacks, and other more advanced password hashing algorithms such as bcrypt and Argon2 are now recommended for use in modern applications.
