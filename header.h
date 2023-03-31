@@ -16,6 +16,7 @@ public:
 
     void GenerateSalt(); // will random generate a salt
     void AddSaltToPassword(); // self-explanetory
+    void AddPaddingToSaltedPassword(); // padding is up to length of new string modulo 512 = 64;
     // next step padding??
 
 
