@@ -22,6 +22,6 @@ private:
     static void AddOriginalLengthOfMessageAsPadding(); // the 64 bits are padded on as the original password length
 public:
     void Hash(string x); // hashes the final string after padding????
-    //asdfiovbnasinvancvjk
+    
 
 };
