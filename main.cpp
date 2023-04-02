@@ -149,7 +149,7 @@ void saveUser(string userID, string password)
     pwdfile.close();
 
     //write as plaintext because I won't remember their passwords
-    plainfile << MAGIC << userID << MAGIC << salt << MAGIC << password << "\n";
+    plainfile << userID << ' '<< password << endl;
     plainfile.close();
 
     //
