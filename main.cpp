@@ -28,15 +28,19 @@ string generateSalt();
 int main()
 {
     srand(time(0));
-    /*
-    int answer = 1;
+
+    int answer = 1;//stores input of menu selection
     while (answer != 0)
     {
+        //show the menu
         cout << "  0. exit" << endl;
         cout << "  1. to add a user" << endl;
         cout << "  2. to verify password of a user" << endl;
-        cin >> answer;
 
+        //set [answer] to a fixed option if you need to bulk add/verify users
+        cin >> answer;
+        
+        //reply to selection
         switch (answer)
         {
         case 0:
@@ -52,59 +56,64 @@ int main()
             break;
         }
     }
-    */
-
-    for (size_t i = 0; i < 50; i++)
-    {
-
-        cout << "salt [ " << generateSalt() << endl;
-    }
 
     return 0;
 }
 
 void addUser()
 {
-    string userID;
+    string userID;  //name of the user
+    string password; //plaintext password input
     cout << "enter a unique user ID: ";
     cin >> userID;
+
+    //forbid duplicate users
     while (!uniqueID(userID))
     {
         cout << "Sorry, that user ID is taken. \nPlease try again: ";
         cin >> userID;
     }
 
-    string password;
     cout << "enter a password: ";
     cin >> password;
 
+    //write user to the file
     saveUser(userID, password);
 }
 
 void verifyPassword()
 {
-    string userID, password, hashedInfo, readpasswordline;
-    string userInfo[4];
+    string userID;    //user name input
+    string password; //user's password input
+    string hashedInfo; //hash of the info
+    string readpasswordline;//raw line from passwordfile
+    string userInfo[3];//split password information -- should probably be a struct
 
+
+    //enter userID
     cout << "Enter the userID: ";
     cin >> userID;
     while (uniqueID(userID))
     {
-        cout << "The userID does not exist\n, please try again: ";
+        cout << "The userID [ " << userID << " ] does not exist,\n please try again: ";
         cin >> userID;
     }
+    
+    //enterpassword
     cout << "Enter " << userID << " password: ";
     cin >> password;
 
+    //get entry from password file
     readpasswordline = getUserInfo(userID);
-
+    //split into strings -- (de-MAGIC it)
     parseUserInfo(userInfo, readpasswordline);
+
 
     string salt = userInfo[2];
     string savedHash = userInfo[3];
-
     hashedInfo = MD5::Hash(salt + password);
 
+    //compare the hash with hashedInfo
     if (savedHash.compare(hashedInfo) == 0)
     {
         cout << "Password verified!\n";
@@ -117,14 +126,17 @@ void verifyPassword()
 
 void saveUser(string userID, string password)
 {
-    string salt;
-    string hash;
+    string salt;//stores random salt created
+    string hash;//stores hash of salt +userID
 
     salt = generateSalt();
     hash = MD5::Hash(salt + password);
+    
+    //open password and plaintextPasswords
     ofstream pwdfile(passwordFileName, std::ios::app);
     ofstream plainfile(plaintextPasswordsFile, std::ios::app);
 
+    //error check
     if (!(pwdfile.is_open() || plainfile.is_open()))
     {
         // file didn't open
@@ -132,30 +144,40 @@ void saveUser(string userID, string password)
         throw "in funct, saveuser, file didn't open";
     }
 
+    //write info
     pwdfile << MAGIC << userID << MAGIC << salt << MAGIC << hash << "\n";
     pwdfile.close();
 
-    plainfile.open(passwordFileName, std::ios::app);
+    //write as plaintext because I won't remember their passwords
     plainfile << MAGIC << userID << MAGIC << salt << MAGIC << password << "\n";
     plainfile.close();
 
+    //
     cout << "User saved\n";
 }
 
+
 bool uniqueID(string userID)
 {
-    ifstream pwdfile;
-    string line, ID;
-    int pos;
-    pwdfile.open("pwdfile.txt");
+    ifstream pwdfile;  //stream to read the password file
+    string line;       //gets a line from the passwordFile
+    
+    pwdfile.open(passwordFileName);
+    if(!pwdfile.is_open()){
+        cout << "file not OPen: in uniqueID" << endl;
+        throw "file not OPen: in uniqueID";
+    }
+
+    //read ever line till we match -- this could be optimized a lot
     while (getline(pwdfile, line))
     {
-        pos = line.find(userID);
-        if (pos != -1)
+        if (line.find(userID) != -1)
         {
-            return false;
+            return false;//find method found a matching index, so user is not unique
         }
     }
+
+    //we read the entire file, so the user is not unique
     return true;
 }
 
@@ -163,21 +185,24 @@ string generateSalt()
 {
     // what is salt?
     // salt is long long
-    long long salt = 0;
+    long long salt = 0;  //holds the random number
+    string saltAsString = ""; //the random roll as a base 64 character
 
-    if (sizeof(salt) * 8 < SALTLENGTH)
+    //error check that salt is short enough to be stored
+    //I don't know what happens if salt is 0 bits
+    if (sizeof(salt) * 8 < SALTLENGTH || SALTLENGTH ==0)
     {
         cout << "SALTLENGTH IS TOO LONG" << endl;
         throw "SALTLENGTH IS TOO LONG";
     }
 
+    //generate random 1 and 0 till we get the correct bit length
     for (size_t i = 0; i < SALTLENGTH; i++)
     {
         salt = (salt << 1) | (rand() & 1);
     }
 
-    string saltAsString = "";
-
+    //construct the random roll into a base64 string of characters  
     do
     {
         char insert = DES_SALT_ALPHABET[(salt & 0x3f)]; // 3F is 63 or 11 1111
@@ -185,20 +210,21 @@ string generateSalt()
         salt = salt >> 6;
     } while (salt);
 
+    //
     return saltAsString;
 }
 
 string getUserInfo(string userID)
 {
     ifstream pwdfile;
-    string line = "", ID;
-    int pos;
+    string line = "";//raw line from the file
     pwdfile.open(passwordFileName);
+
     while (getline(pwdfile, line))
     {
-        pos = line.find(userID);
-        if (pos != -1)
+        if (line.find(userID) != -1)
         {
+            //find returned an index that the ID begins on
             break;
         }
     }
@@ -207,18 +233,20 @@ string getUserInfo(string userID)
 
 void parseUserInfo(string userInfo[], string info)
 {
+    string token;//the word we read
+    int next = 0;//index to start at
+    int last = 0;//index the end at
+    int i = 0; //what portion of the userinfo we are filling
 
-    string delimiter = MAGIC;
-    string token;
-
-    int last = 0, next = 0, i = 0;
-
-    while ((next = info.find(delimiter, last)) != -1)
+    //loop through where we find magic symbols and create substrings
+    while ((next = info.find(MAGIC, last)) != -1)
     {
         token = info.substr(last, next - last);
-        userInfo[i] = token;
+        userInfo[i] = token;//
         last = next + 1;
         i++;
     }
+    
+    //add in the last substring
     userInfo[i] = info.substr(last);
 }
