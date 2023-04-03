@@ -13,7 +13,7 @@ original message + padding bits = 512-64
 
 step 2:
 
-pad the length bits of orginal message to the previous result and the length is expressed in 64 bits
+pad the length bits of salted message to the previous result and the length is expressed in 64 bits
 
 after this, the string is now a multiple of 512
 
