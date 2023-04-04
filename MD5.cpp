@@ -3,10 +3,20 @@
 string MD5::Hash(string input){
     string padded;
     string finalOutput;
+    vector<string> blocks;
     int* messageArray;
     padded = AddPaddingTo(input);
-    messageArray = SubBlocks(padded);
-
+    blocks = Blocks(padded);
+    for(int j = 0; j< blocks.size(); j++){
+        messageArray = SubBlocks(blocks[j]);
+        unsigned int a,b,c,d;
+        a = WordA;
+        b = WordB;
+        c = WordC;
+        d = WordD;
+        //bitset<32> x(round1(b,c,d));
+        //cout << messageArray[15];
+    }
     return finalOutput;
 }
 
@@ -40,6 +50,20 @@ string MD5::AddPaddingTo(string input ){
     return binaryOfInput;
 }
 
+vector<string> MD5::Blocks(string input){
+    vector<string> blocks;
+    string temp= "";
+    for(char c : input ){
+        temp = temp + c;
+        if((temp.size()%512) == 0){
+            blocks.push_back(temp);
+            //cout << temp;
+            temp = "";
+        }
+    }
+    return blocks;
+}
+
 int* MD5::SubBlocks(string block){ // 512 bit as string input only
     static int messageArray[16];
     string bucket = "";
@@ -54,7 +78,7 @@ int* MD5::SubBlocks(string block){ // 512 bit as string input only
             bucket = "";
         }
     }
-    cout << messageArray[15];
+    //cout << messageArray[15];
     return messageArray;
 }
 
@@ -71,3 +95,18 @@ int MD5::BitStringToInt(string subBlock){
     return block;
 }
 
+unsigned int MD5::round1(unsigned int b, unsigned int c,unsigned int d){
+    return (((b) & (c)) | ((~ (b)) & (d)));
+} 
+
+unsigned int MD5::round2(unsigned int b,unsigned int c,unsigned int d){
+    return (((b) & (d)) | ((c) & (~ (d))));
+}
+
+unsigned int MD5::round3(unsigned int b,unsigned int c,unsigned int d){
+    return ((b) ^ (c) ^ (d));
+}
+
+unsigned int MD5::round4(unsigned int b,unsigned int c,unsigned int d){
+    return (c ^ (b | (~ (d))));
+}
