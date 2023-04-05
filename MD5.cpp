@@ -158,14 +158,14 @@ string MD5::DigestBuffer(vector<string> blocks){
     string finalOutput;
 
     for(int i = 0; i < 4; i++){
-        finalOutput += DecToHexa(state[i]); // changes the decimal values in the state array to their hex equivalent as a string
+        finalOutput += IntegerToHex(state[i]); // changes the decimal values in the state array to their hex equivalent as a string
     }
 
     return finalOutput;
 }
 
 // function for converting integer decimal value to hexadecimal
-string MD5::DecToHexa(unsigned int n)
+string MD5::IntegerToHex(unsigned int n)
 {
     string hexNumber = "";                  // string to hold hex number as string of inputted value
     while (n != 0) {

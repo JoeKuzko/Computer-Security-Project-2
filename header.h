@@ -15,12 +15,12 @@ using namespace std;
 
 class MD5{
 private:
-    static string AddPaddingTo(string); // padding is added to make string a multiple of 512 bits. returns string of binary representation of the original inputted string
-    static vector<string> Blocks(string); // makes message into 512 bit blocks and returns vector with those blocks
-    static int* SubBlocks(string);      // recieves message as 512 bits is further broken down to 16 sub blocks of 32 bits into integers;
-    static int BitStringToInt(string);  // converts string of binary to integer to hold 32 bits
+    static string AddPaddingTo(string);             // padding is added to make string a multiple of 512 bits. returns string of binary representation of the original inputted string
+    static vector<string> Blocks(string);           // makes message into 512 bit blocks and returns vector with those blocks
+    static int* SubBlocks(string);                  // recieves message as 512 bits is further broken down to 16 sub blocks of 32 bits into integers;
+    static int BitStringToInt(string);              // converts string of binary to integer to hold 32 bits
     static string DigestBuffer(vector<string>);     // starts the digest process taking in a vector of the 512 bit blocks
-    static string DecToHexa(unsigned int);      // changes decimal int to hexadecimal string for output;
+    static string IntegerToHex(unsigned int);       // changes decimal int to hexadecimal string for output;
 
     //four auxiliary functions that take 3 32 bit "words" and produce one 32 bit word for the 4 rounds of MD5
     static unsigned int Round1(unsigned int,unsigned int,unsigned int); //1: (b AND c) OR ((NOT b) AND (d))
