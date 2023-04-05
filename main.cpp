@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <time.h>
 
-#include "MD5.cpp"
+#include "header.h"
 
 #define DES_SALT_ALPHABET "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
