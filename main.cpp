@@ -12,6 +12,7 @@ using namespace std;
 
 const string passwordFileName = "passwordFile.txt";
 const string plaintextPasswordsFile = "passwordPlaintextFile.txt";
+const string batchUserPasswordFile = "top500WorstPasswords.txt"; //from https://xato.net/10-000-top-passwords-6d6380716fe0
 
 const int SALTLENGTH = 6;
 const string MAGIC = "$";
@@ -21,6 +22,7 @@ void addUser();
 void verifyPassword();
 void saveUser(string userID, string password);
 void parseUserInfo(string userInfo[], string info);
+void batchAddUsers();
 bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
@@ -36,6 +38,7 @@ int main()
         cout << "  0. exit" << endl;
         cout << "  1. to add a user" << endl;
         cout << "  2. to verify password of a user" << endl;
+        cout << "  3. batch add user passwords from file [ " << batchUserPasswordFile << " ]" << endl;
 
         //set [answer] to a fixed option if you need to bulk add/verify users
         cin >> answer;
@@ -51,6 +54,8 @@ int main()
         case 2:
             verifyPassword();
             break;
+        case 3:
+            batchAddUsers();
         default:
             cout << "invalid selection, please try again\n";
             break;
@@ -124,13 +129,48 @@ void verifyPassword()
     }
 }
 
+void batchAddUsers(){
+    cout << "this will add 500 new users from file [ " << batchUserPasswordFile << " ] " <<endl;
+    cout << "are you sure you want to continue? [y/n]: " ;
+
+    string input;
+    cin >> input;
+    if(input[0] != 'y'){
+        cout << "input was not 'y'. aborting" << endl;
+        return;
+    }
+
+    ifstream pwdfile;  //stream to read the password file
+    string line;       //gets a line from the passwordFile
+    
+    pwdfile.open(batchUserPasswordFile);
+    if(!pwdfile.is_open()){
+        cout << "file not OPen: in uniqueID" << endl;
+        throw "file not OPen: in uniqueID";
+    }
+
+    string sessionSalt = generateSalt()+generateSalt();
+    int count =0;
+    //read ever line till we match -- this could be optimized a lot
+    while (getline(pwdfile, line))
+    {
+        cout << "adding: [ " << count << " ] " ; //<<endl;//save user function could add the newline
+        saveUser("batched_" + sessionSalt + '_' + to_string(count), line);
+        count++;
+    }
+    
+
+
+    return;
+}
+
 void saveUser(string userID, string password)
 {
     string salt;//stores random salt created
     string hash;//stores hash of salt +userID
 
     salt = generateSalt();
-    hash = MD5::Hash(salt + password);
+    hash = MD5::Hash(salt + string(password));
     
     //open password and plaintextPasswords
     ofstream pwdfile(passwordFileName, std::ios::app);
