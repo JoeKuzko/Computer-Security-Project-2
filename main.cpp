@@ -12,7 +12,7 @@ using namespace std;
 
 const string passwordFileName = "passwordFile.txt";
 const string plaintextPasswordsFile = "passwordPlaintextFile.txt";
-const string batchUserPasswordFile = "top500WorstPasswords.txt"; //from https://xato.net/10-000-top-passwords-6d6380716fe0
+const string batchUserPasswordFile = "possiblePasswords.txt";
 
 const int SALTLENGTH = 6;
 const string MAGIC = "$";
@@ -27,7 +27,8 @@ bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
 
-int main()
+int systeminterface() // this is to make VScode happy -- duplicate main functions
+//int main()
 {
     srand(time(0));
 
