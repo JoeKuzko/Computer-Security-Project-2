@@ -19,7 +19,7 @@ const string loggingFileName = "rainbowLog.txt";
 
 //Function declarations
 string hashWord(string);
-
+void sortRainbowTable();
 
 
 //Main function
@@ -62,7 +62,42 @@ int main()
 
     cout << "Finished creation of rainbow table. Results are stored in rainbowTable.txt" << endl;
 
+    //Sort the file according to salt value
+    sortRainbowTable();
+
     return 0;
+}
+
+void sortRainbowTable(){
+    vector<string> passwords;
+    ifstream inFile;
+    inFile.open("rainbowTable.txt");
+
+    ofstream outFile;
+    outFile.open("rainbowTable2.txt");
+
+    for(int i = 0; i <= 63; i++){
+        char salt = DES_SALT_ALPHABET[i];
+
+        string line;
+        while(getline(inFile, line)){
+            char s = line[0];
+
+            if(s == salt){
+                passwords.push_back(line);
+            }
+        }
+    }
+
+    inFile.close();
+
+    for(int i = 0; i < passwords.size(); i++){
+        outFile << passwords[i] << endl;
+    }
+
+    outFile.close();
+
+    cout << "Rainbow Table has been sorted. Results stored in rainbowTable2.txt" << endl;
 }
 
 /*
