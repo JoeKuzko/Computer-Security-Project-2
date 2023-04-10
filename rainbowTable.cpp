@@ -51,7 +51,7 @@ int main()
     while(getline(inFile, line) && count <10000){
         for(int i=0; i < saltAlphabetSize; i ++){
             string hash = MD5::Hash(DES_SALT_ALPHABET[i] + line);
-            outFile <<DES_SALT_ALPHABET[i] << MAGIC << hash << endl;
+            outFile <<DES_SALT_ALPHABET[i] << MAGIC << hash << MAGIC << line << endl;
         }
         cout << "fulled hashed password [ " << count << " ] in [ " << trialTime.elapsed() << " ] seconds" << endl;
         logFile << count << ',' << trialTime.elapsed() << ',' << totalTime.elapsed() << endl;
