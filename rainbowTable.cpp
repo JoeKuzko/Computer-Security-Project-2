@@ -60,10 +60,10 @@ int main()
     }
     outFile.close();
 
-    cout << "Finished creation of rainbow table. Results are stored in rainbowTable.txt" << endl;
-
     //Sort the file according to salt value
     sortRainbowTable();
+
+    cout << "Finished creation of rainbow table. Results are stored in rainbowTable.txt" << endl;
 
     return 0;
 }

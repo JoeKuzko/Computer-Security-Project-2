@@ -339,7 +339,7 @@ void crackPassword(){
     }
 
     //Lookup password in the rainbow table
-    inFile.open("rainbowTable.txt");
+    inFile.open("rainbowTable2.txt");
     string key = salt + "$" + hash;
     int loc;
     while(getline(inFile, line)){
