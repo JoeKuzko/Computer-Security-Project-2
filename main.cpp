@@ -26,6 +26,8 @@ void batchAddUsers();
 bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
+void sortRainbowTable();
+
 
 int systeminterface() // this is to make VScode happy -- duplicate main functions
 //int main()
@@ -40,6 +42,7 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
         cout << "  1. to add a user" << endl;
         cout << "  2. to verify password of a user" << endl;
         cout << "  3. batch add user passwords from file [ " << batchUserPasswordFile << " ]" << endl;
+        cout << "  4. sort rainbow table" << endl;
 
         //set [answer] to a fixed option if you need to bulk add/verify users
         cin >> answer;
@@ -57,6 +60,8 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
             break;
         case 3:
             batchAddUsers();
+        case 4:
+            sortRainbowTable();
         default:
             cout << "invalid selection, please try again\n";
             break;
@@ -290,4 +295,32 @@ void parseUserInfo(string userInfo[], string info)
     
     //add in the last substring
     userInfo[i] = info.substr(last);
+}
+
+void sortRainbowTable(){
+    vector<string> passwords;
+    ifstream inFile;
+    inFile.open("rainbowTable.txt");
+
+    ofstream outFile;
+    outFile.open("rainbowTable2.txt");
+
+    for(int i = 0; i <= 63; i++){
+        char salt = DES_SALT_ALPHABET[i];
+
+        string line;
+        while(getline(inFile, line)){
+            char s = line[0];
+
+            if(s == salt){
+                passwords.push_back(line);
+            }
+        }
+    }
+
+    for(int i = 0; i < passwords.size(); i++){
+        outFile << passwords[i] << endl;
+    }
+
+    cout << "Rainbow Table has been sorted. Results stored in rainbowTable2.txt" << endl;
 }
