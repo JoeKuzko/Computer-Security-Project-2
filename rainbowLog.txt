@@ -1,3 +1,4 @@
+"password index,	Time to Hash entire salt,	Total time elapsed"
 0,1.79674,1.79674
 1,1.931,3.72781
 2,1.97143,5.69928
