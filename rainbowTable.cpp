@@ -26,6 +26,10 @@ string hashWord(string);
 //int hackerInterface() // this is to make VScode happy -- duplicate main functions
 int main()
 {
+    cout << "this will replace the rainbow table." <<endl;
+    cout << "it will take several minutes to recompute it" << endl;
+    cout << "are you sure you want to continue? [y/n]: " ;
+
     Timer totalTime;
     Timer trialTime;
 
@@ -44,17 +48,26 @@ int main()
     int saltAlphabetSize = string(DES_SALT_ALPHABET).size();
 
     
-    logFile<< "password index,	Time to Hash entire salt,	Total time elapsed"<< endl;
+
+    string input;
+    cin >> input;
+    if(input[0] != 'y'){
+        cout << "input was not 'y'. aborting" << endl;
+        return 66;
+    }
+
+    
+    logFile<< "password index,	Time to Hash entire salt(seconds),	Total time elapsed (seconds),size of password (characters)"<< endl;
     totalTime.reset();
     trialTime.reset();
 
     while(getline(inFile, line) && count <10000){
         for(int i=0; i < saltAlphabetSize; i ++){
             string hash = MD5::Hash(DES_SALT_ALPHABET[i] + line);
-            outFile <<DES_SALT_ALPHABET[i] << MAGIC << hash << endl;
+            outFile <<DES_SALT_ALPHABET[i] << MAGIC << hash << MAGIC << line << endl;
         }
-        cout << "fulled hashed password [ " << count << " ] in [ " << trialTime.elapsed() << " ] seconds" << endl;
-        logFile << count << ',' << trialTime.elapsed() << ',' << totalTime.elapsed() << endl;
+        cout << "fully hashed password [ " << count << " ] in [ " << trialTime.elapsed() << " ] seconds" << endl;
+        logFile << count << ',' << trialTime.elapsed() << ',' << totalTime.elapsed()<< ',' << line.size()<< endl;
         trialTime.reset();
         count++;
     }
