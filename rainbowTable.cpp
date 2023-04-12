@@ -13,6 +13,7 @@ const int SALTLENGTH = 6;
 const string MAGIC = "$";
 
 const string possiblePasswordsFile = "top500WorstPasswords.txt"; //from https://xato.net/10-000-top-passwords-6d6380716fe0
+const string rainbowTableFile = "rainbowTable.txt";
 const string loggingFileName = "rainbowLog.txt";
 
 
@@ -37,7 +38,7 @@ void createRainbow() // this is to make VScode happy -- duplicate main functions
     inFile.open(possiblePasswordsFile);
 
     //Create output file for table
-    ofstream outFile("rainbowTable.txt");
+    ofstream outFile(rainbowTableFile);
     ofstream logFile(loggingFileName);
 
     //Read all passwords from dictionary
