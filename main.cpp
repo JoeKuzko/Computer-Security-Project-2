@@ -27,8 +27,8 @@ bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
 
-int systeminterface() // this is to make VScode happy -- duplicate main functions
-//int main()
+//int systeminterface() // this is to make VScode happy -- duplicate main functions
+int main()
 {
     srand(time(0));
 
@@ -85,6 +85,7 @@ void addUser()
 
     //write user to the file
     saveUser(userID, password);
+    cout << "User saved" << endl;
 }
 
 void verifyPassword()
@@ -131,7 +132,11 @@ void verifyPassword()
 }
 
 void batchAddUsers(){
-    cout << "this will add 500 new users from file [ " << batchUserPasswordFile << " ] " <<endl;
+    int addUserAmount = 500;
+    ifstream pwdfile;  //stream to read the password file
+    string line;       //gets a line from the passwordFile
+
+    cout << "this will add [ " << addUserAmount << " ] new users from file [ " << batchUserPasswordFile << " ] " <<endl;
     cout << "are you sure you want to continue? [y/n]: " ;
 
     string input;
@@ -141,26 +146,33 @@ void batchAddUsers(){
         return;
     }
 
-    ifstream pwdfile;  //stream to read the password file
-    string line;       //gets a line from the passwordFile
-    
+        
     pwdfile.open(batchUserPasswordFile);
     if(!pwdfile.is_open()){
         cout << "file not OPen: in uniqueID" << endl;
         throw "file not OPen: in uniqueID";
     }
 
-    string sessionSalt = generateSalt()+generateSalt();
-    int count =0;
-    //read ever line till we match -- this could be optimized a lot
-    while (getline(pwdfile, line))
-    {
-        cout << "adding: [ " << count << " ] " ; //<<endl;//save user function could add the newline
-        saveUser("batched_" + sessionSalt + '_' + to_string(count), line);
-        count++;
+    string sessionSalt = generateSalt();
+    vector<string> passwordsPossible;
+
+    while (getline(pwdfile, line)){
+        passwordsPossible.push_back(line);
     }
+    cout << "found [ " << passwordsPossible.size() << " ] possible passwords" << endl;
     
 
+
+    
+    for(int count = 0; count < addUserAmount; count ++){
+        if(count % 50 == 0){
+            cout << "adding user: [ " << count + 1 << " ] " <<endl; //<<endl;//save user function could add the newline
+        }
+        int roll = rand()%passwordsPossible.size();
+        string temp = passwordsPossible.at(roll);
+        saveUser("bat-" + sessionSalt + '-' + to_string(count), temp);
+        passwordsPossible.erase(passwordsPossible.begin()+roll);
+    }
 
     return;
 }
@@ -194,7 +206,7 @@ void saveUser(string userID, string password)
     plainfile.close();
 
     //
-    cout << "User saved\n";
+    //cout << "User saved\n";
 }
 
 
