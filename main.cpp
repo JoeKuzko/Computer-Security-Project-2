@@ -14,8 +14,10 @@ const string passwordFileName = "passwordFile.txt";
 const string plaintextPasswordsFile = "passwordPlaintextFile.txt";
 const string batchUserPasswordFile = "possiblePasswords.txt";
 
+
 const int SALTLENGTH = 6;
 const string MAGIC = "$";
+
 
 //
 void addUser();
@@ -26,12 +28,13 @@ void batchAddUsers();
 bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
-void crackPassword();
+void crackOnRails();
+bool crackPassword(string userID);
 
 
 
-int systeminterface() // this is to make VScode happy -- duplicate main functions
-//int main()
+
+int main()
 {
     srand(time(0));
 
@@ -45,6 +48,7 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
         cout << "  3. batch add user passwords from file [ " << batchUserPasswordFile << " ]" << endl;
         cout << "  4. crack a user's password." << endl;
         cout << "  5. sort rainbow table" << endl;
+        cout << "  6. create new rainbow table" << endl;
 
         //set [answer] to a fixed option if you need to bulk add/verify users
         cin >> answer;
@@ -62,8 +66,16 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
             break;
         case 3:
             batchAddUsers();
+            break;
         case 4:
-            crackPassword();
+            crackOnRails();
+            break;
+        case 5:
+            cout << "implement sort rainbow" << endl;
+            break;
+        case 6:
+            cout <<" implement create new rainbow" << endl;
+            break;
         default:
             cout << "invalid selection, please try again\n";
             break;
@@ -138,8 +150,37 @@ void verifyPassword()
     }
 }
 
+/*void randomizepasswordTable(){
+    vector<string> table;
+    ifstream pwdfile;  //stream to read the password file
+    pwdfile.open(passwordFileName);
+    string line;
+    
+    while (getline(pwdfile, line)){
+        table.push_back(line);
+    }
+
+    pwdfile.close();
+
+    int roll1;
+    int roll2;
+    for(int i =0; i < 100000000; i ++){
+        roll1 = rand()%table.size();
+        roll2 = rand()%table.size();
+
+        line = table[roll1];
+        table[roll1] = table[roll2];
+        table[roll2] = line;
+    }
+
+    ofstream pazz(passwordFileName);
+    for(int i =0; i < table.size(); i ++){
+        pazz << table.at(i) << endl;
+    }
+}*/
+
 void batchAddUsers(){
-    int addUserAmount = 500;
+    int addUserAmount = 777;
     ifstream pwdfile;  //stream to read the password file
     string line;       //gets a line from the passwordFile
 
@@ -311,19 +352,56 @@ void parseUserInfo(string userInfo[], string info)
     userInfo[i] = info.substr(last);
 }
 
-void crackPassword(){
-    string userID;
+void crackOnRails(){
+    ifstream pwdfile;           //stream to read the password file
+    vector<string> lines;       //stores all user data
+    string line;                //gets a line from the passwordFile
+    int trials;
+    int cracks =0;
+    
+    //open passwords
+    pwdfile.open(passwordFileName);
+    if(!pwdfile.is_open()){
+        cout << "file not OPen: in uniqueID" << endl;
+        throw "file not OPen: in uniqueID";
+    }
+
+    //read every line
+    while (getline(pwdfile, line))
+    {
+        lines.push_back(line);
+    }
+    
+    //get indexes
+    cout << "how many random indexes would you like to try? [0 - " << lines.size() << " ] " << endl;
+    cin >> trials;
+
+    //try random indexes
+    for(int i =0; i < trials; i ++){
+        int roll = rand()%lines.size();
+        string userinfo[4];
+        parseUserInfo(userinfo,lines.at(roll));
+        //if(
+        crackPassword(userinfo[1]);
+        //{cracks++;}
+    }
+
+    //report findings
+}
+
+bool crackPassword(string userID){
+    
 
     //Get user information
-    cout << "Enter the user id: ";
-    cin >> userID;
+    //cout << "Enter the user id: ";
+    //cin >> userID;
 
     //Verify user
-    while (uniqueID(userID))
-    {
-        cout << "The userID [ " << userID << " ] does not exist,\n please try again: ";
-        cin >> userID;
-    }
+    //while (uniqueID(userID))
+    //{
+        //cout << "The userID [ " << userID << " ] does not exist,\n please try again: ";
+        //cin >> userID;
+    //}
 
     //Get user salt and hash from the password file
     ifstream inFile;
@@ -367,9 +445,13 @@ void crackPassword(){
     if(loc == -1){
         cout << "Error finding salt/hash in rainbow table." << endl;
     }
+    else{
 
     //Extract password from the line of the rainbow table
     string password = line.substr(line.find_last_of('$') + 1);
 
     cout << "The password for user " << userID << " is: " << password << "." << endl;
+    }
+
+    return false;
 }
