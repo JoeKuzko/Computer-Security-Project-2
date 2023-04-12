@@ -3,21 +3,21 @@
 #include <fstream>
 #include <cstdlib>
 #include <time.h>
-#include "Timer.h"
+#include "Timer.h" //from learnCPP.com external timer library to measure code efficency
 
 #include "header.h"
 
-#define DES_SALT_ALPHABET "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+#define DES_SALT_ALPHABET "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" // from freeBSD, the salt alphabet
 
 using namespace std;
 
-const string passwordFileName = "passwordFile.txt";
-const string plaintextPasswordsFile = "passwordPlaintextFile.txt";
-const string batchUserPasswordFile = "possiblePasswords.txt";
-const string rainbowTableFile = "rainbowTable.txt";
+const string passwordFileName = "passwordFile.txt";                        //name of the unix passwords file
+const string plaintextPasswordsFile = "passwordPlaintextFile.txt";         //plain text passwords to help us remember them
+const string batchUserPasswordFile = "possiblePasswords.txt";              //what can be added from batch user addition
+const string rainbowTableFile = "rainbowTable.txt";                        //file of pre-computed hashes
 
-const int SALTLENGTH = 6;
-const string MAGIC = "$";
+const int SALTLENGTH = 6;                                                  //how many bits of salt to add to user passwords before hash
+const string MAGIC = "$";                                                  //character deliminator for passwordfile
 
 //
 void addUser();
@@ -67,14 +67,13 @@ int main()
             batchAddUsers();
             break;
         case 4:
-            crackOnRails();
+            crackOnRails();//function to try to crack user passwords from the rainbow table
             break;
         case 5:
-            cout << "implement sort rainbow" << endl;
+            cout << "TODO: implement sort rainbow" << endl;
             cout << "this could have speed improvements with a slightly different coding architeture." << endl;
             break;
         case 6:
-            // cout <<" implement create new rainbow" << endl;
             void createRainbow();
             break;
         default:
@@ -86,6 +85,7 @@ int main()
     return 0;
 }
 
+/// @brief input loop for manual user addition
 void addUser()
 {
     string userID;   // name of the user
@@ -108,6 +108,7 @@ void addUser()
     cout << "User saved" << endl;
 }
 
+/// @brief input loop for manual user password verification
 void verifyPassword()
 {
     string userID;           // user name input
@@ -149,41 +150,14 @@ void verifyPassword()
     }
 }
 
-/*
-void randomizepasswordTable(){
-    vector<string> table;
-    ifstream pwdfile;  //stream to read the password file
-    pwdfile.open(passwordFileName);
-    string line;
-
-    while (getline(pwdfile, line)){
-        table.push_back(line);
-    }
-
-    pwdfile.close();
-
-    int roll1;
-    int roll2;
-    for(int i =0; i < 100000000; i ++){
-        roll1 = rand()%table.size();
-        roll2 = rand()%table.size();
-
-        line = table[roll1];
-        table[roll1] = table[roll2];
-        table[roll2] = line;
-    }
-
-    ofstream pazz(passwordFileName);
-    for(int i =0; i < table.size(); i ++){
-        pazz << table.at(i) << endl;
-    }
-}*/
-
+/// @brief addusers in bulk from the [batchpasswordfile]
 void batchAddUsers()
 {
-    int addUserAmount = 777;
-    ifstream pwdfile; // stream to read the password file
-    string line;      // gets a line from the passwordFile
+    int addUserAmount = 777;             //how many additional users to append
+    ifstream pwdfile;                    // stream to read the password file
+    string line;                         // gets a line from the passwordFile
+    string sessionSalt = generateSalt(); //a random character to make batch users unique
+    vector<string> passwordsPossible;    //every possible password we may select
 
     cout << "this will add [ " << addUserAmount << " ] new users from file [ " << batchUserPasswordFile << " ] " << endl;
     cout << "are you sure you want to continue? [y/n]: ";
@@ -196,6 +170,7 @@ void batchAddUsers()
         return;
     }
 
+    //open passwordfile and error check
     pwdfile.open(batchUserPasswordFile);
     if (!pwdfile.is_open())
     {
@@ -203,30 +178,36 @@ void batchAddUsers()
         throw "file not OPen: in uniqueID";
     }
 
-    string sessionSalt = generateSalt();
-    vector<string> passwordsPossible;
 
+    //read all possible passwords
     while (getline(pwdfile, line))
     {
         passwordsPossible.push_back(line);
     }
     cout << "found [ " << passwordsPossible.size() << " ] possible passwords" << endl;
 
+    //loop to save users
     for (int count = 0; count < addUserAmount; count++)
     {
+        //report progress of adding users
         if (count % 50 == 0)
         {
             cout << "adding user: [ " << count + 1 << " ] " << endl; //<<endl;//save user function could add the newline
         }
+
+        //select a password and save it
         int roll = rand() % passwordsPossible.size();
         string temp = passwordsPossible.at(roll);
         saveUser("bat-" + sessionSalt + '-' + to_string(count), temp);
-        passwordsPossible.erase(passwordsPossible.begin() + roll);
+        passwordsPossible.erase(passwordsPossible.begin() + roll);//remove password, technichally this means passwords are more likely to be unique, so IDK if we should remove them
     }
 
     return;
 }
 
+/// @brief Writes user information into the passwordfile
+/// @param userID unique ID of the user being added
+/// @param password the plaintext password of the user
 void saveUser(string userID, string password)
 {
     string salt; // stores random salt created
@@ -259,6 +240,9 @@ void saveUser(string userID, string password)
     // cout << "User saved\n";
 }
 
+/// @brief check if a userID is unique to the system
+/// @param userID id to be checked
+/// @return true if the user name isn't taken
 bool uniqueID(string userID)
 {
     ifstream pwdfile; // stream to read the password file
@@ -284,6 +268,8 @@ bool uniqueID(string userID)
     return true;
 }
 
+/// @brief creates a random salt character
+/// @return random salty tears... (returns random salt value)
 string generateSalt()
 {
     // what is salt?
@@ -317,6 +303,9 @@ string generateSalt()
     return saltAsString;
 }
 
+/// @brief looks are password file for the user id paramater from file
+/// @param userID the name we look for
+/// @return raw line entry of ID, SALT, PASSWORD-HASH
 string getUserInfo(string userID)
 {
     ifstream pwdfile;
@@ -334,6 +323,9 @@ string getUserInfo(string userID)
     return line;
 }
 
+/// @brief seperates a raw line entry of user information
+/// @param userInfo //4 index array to store seperate values
+/// @param info //raw line read from file 
 void parseUserInfo(string userInfo[], string info)
 {
     string token; // the word we read
@@ -354,15 +346,16 @@ void parseUserInfo(string userInfo[], string info)
     userInfo[i] = info.substr(last);
 }
 
+/// @brief looks at multiple entries in the passwordfile and tries to crack them from the rainbow table.
 void crackOnRails()
 {
-    ofstream crackLog("crackLog.txt");
+    ofstream crackLog("crackLog.txt");//log file for time measurements
     ifstream pwdfile;     // stream to read the password file
     vector<string> lines; // stores all user data
     string line;          // gets a line from the passwordFile
     int trials;           // how many times we will look through our rainbow table
     int cracks = 0;       // success rates
-    Timer trialTimer;     // 
+    Timer trialTimer;     // timing class to measure results
 
     // open passwords
     pwdfile.open(passwordFileName);
@@ -391,17 +384,21 @@ void crackOnRails()
         int roll = rand() % lines.size();
         string userinfo[4];
 
-        parseUserInfo(userinfo, lines.at(roll));
+        parseUserInfo(userinfo, lines.at(roll));//get individual components of the users information
 
+        //try to crack
         if (crackPassword(userinfo))
         {
+            //password broken
             cracks++;
             crackLog << i << ',' << trialTimer.elapsed() << ',' << "success" << endl;
         }
         else
         {
+            //cracking failed
             crackLog << i << ',' << trialTimer.elapsed() << ',' <<"failure" << endl;
         }
+
         lines.erase(lines.begin() + roll); // get rid of indexes we already look at
         
     }
@@ -412,15 +409,19 @@ void crackOnRails()
     cout << "last Trial took [ " << trialTimer.elapsed() << endl;
 }
 
+/// @brief looks at the rainbow table to look up [userInfo]
+/// @param userInfo information from passwordfile to try to reverse
+/// @return true if password is cracked
 bool crackPassword(string userInfo[])
 {
     ifstream inFile(rainbowTableFile);
     string line;
+    
     // Lookup password in the rainbow table
-
     string key = userInfo[2] + "$" + userInfo[3];
-    int loc;
+    int loc;//used to keep track of string indexes
 
+    //read lines to find the hash
     while (getline(inFile, line))
     {
         loc = line.find(key);
@@ -443,14 +444,14 @@ bool crackPassword(string userInfo[])
     else
     {
         // Extract password from the line of the rainbow table
-        // string password = line.substr(line.find_last_of('$') + 1);
-
         string userName = userInfo[1];
         loc = line.find(MAGIC);
         loc = line.find(MAGIC, loc + 1);
+
+        //print out the cracked password
         string password = line.substr(loc + 1);
         cout << "The password for user [ " << userName << " ] is: [ " << password << endl;
-        // cout << "found [ " << line << endl;
+
         return true;
     }
 }
