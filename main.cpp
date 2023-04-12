@@ -26,6 +26,9 @@ void batchAddUsers();
 bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
+void crackPassword();
+
+
 
 int systeminterface() // this is to make VScode happy -- duplicate main functions
 //int main()
@@ -40,6 +43,8 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
         cout << "  1. to add a user" << endl;
         cout << "  2. to verify password of a user" << endl;
         cout << "  3. batch add user passwords from file [ " << batchUserPasswordFile << " ]" << endl;
+        cout << "  4. crack a user's password." << endl;
+        cout << "  5. sort rainbow table" << endl;
 
         //set [answer] to a fixed option if you need to bulk add/verify users
         cin >> answer;
@@ -57,6 +62,8 @@ int systeminterface() // this is to make VScode happy -- duplicate main function
             break;
         case 3:
             batchAddUsers();
+        case 4:
+            crackPassword();
         default:
             cout << "invalid selection, please try again\n";
             break;
@@ -302,4 +309,67 @@ void parseUserInfo(string userInfo[], string info)
     
     //add in the last substring
     userInfo[i] = info.substr(last);
+}
+
+void crackPassword(){
+    string userID;
+
+    //Get user information
+    cout << "Enter the user id: ";
+    cin >> userID;
+
+    //Verify user
+    while (uniqueID(userID))
+    {
+        cout << "The userID [ " << userID << " ] does not exist,\n please try again: ";
+        cin >> userID;
+    }
+
+    //Get user salt and hash from the password file
+    ifstream inFile;
+    inFile.open("passwordFile.txt");
+
+    string line;
+    string salt = "";
+    string hash = "";
+    while(getline(inFile, line)){
+        int i = line.substr(1).find_first_of('&');
+
+        //Check is userID matches
+        if(userID == line.substr(1, i - 2)){
+            string salt = line.substr(i + 1, 1);
+            string hash = line.substr(i + 3);
+            break;
+        }
+    }
+
+    inFile.close();
+
+    //Alert user if the hash/password has not been properly set
+    if(salt == "" || hash == ""){
+        cout << "Error in retrieving salt/hash for " << userID << "." << endl;
+    }
+
+    //Lookup password in the rainbow table
+    inFile.open("rainbowTable2.txt");
+    string key = salt + "$" + hash;
+    int loc;
+    while(getline(inFile, line)){
+        loc = line.find(key);
+
+        //Verify if the key has been found
+        if(loc != -1){
+            break;
+        }
+    }
+
+    //Alert user if the salt/hash combo has not been found in the rainbow table
+    if(loc == -1){
+        cout << "Error finding salt/hash in rainbow table." << endl;
+    }
+
+    //Extract password from the line of the rainbow table
+    string password = line.substr(line.find_last_of('$') + 1);
+
+    cout << "The password for user " << userID << " is: " << password << "." << endl;
 }
