@@ -23,8 +23,7 @@ void sortRainbowTable();
 
 
 //Main function
-//int hackerInterface() // this is to make VScode happy -- duplicate main functions
-int main()
+void createRainbow() // this is to make VScode happy -- duplicate main functions
 {
     cout << "this will replace the rainbow table." <<endl;
     cout << "it will take several minutes to recompute it" << endl;
@@ -53,7 +52,7 @@ int main()
     cin >> input;
     if(input[0] != 'y'){
         cout << "input was not 'y'. aborting" << endl;
-        return 66;
+        return;
     }
 
     
@@ -78,7 +77,7 @@ int main()
 
     cout << "Finished creation of rainbow table. Results are stored in rainbowTable.txt" << endl;
 
-    return 0;
+    return ;
 }
 
 void sortRainbowTable(){
@@ -113,22 +112,3 @@ void sortRainbowTable(){
     cout << "Rainbow Table has been sorted. Results stored in rainbowTable2.txt" << endl;
 }
 
-/*
-//Function to return the hash of a word
-string hashWord(string word){
-    int seed = 153;
-    int val = 0;
-    int size = word.size();
-    string hash = "";
-
-    for(int i = 0; i < word.size(); i++){
-        //Get value in range 0-93
-        val = (val + int (word[i]) * seed) % 64;
-
-        //Get proper ascii character
-        hash += DES_SALT_ALPHABET[val];
-    }
-
-    return hash;
-}
-*/
