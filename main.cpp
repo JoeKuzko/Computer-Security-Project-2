@@ -27,8 +27,8 @@ bool uniqueID(string userID);
 string getUserInfo(string userID);
 string generateSalt();
 
-//int systeminterface() // this is to make VScode happy -- duplicate main functions
-int main()
+int systeminterface() // this is to make VScode happy -- duplicate main functions
+//int main()
 {
     srand(time(0));
 
